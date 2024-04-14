@@ -1,28 +1,31 @@
+# 2024-04-14,0点26 可能是空间复杂度太高, 改成用树来存储路径.
+
 #=============一笔画问题.
 import matplotlib.pyplot as plt
 
 # 1表示可以走的路, 0表示墙
-# [0,1,1,1,1,1]
-# [1,1,0,0,1,1]
-# [1,0,1,1,1,1]
-# [1,1,1,1,0,1]
-# [1,0,1,1,1,1]
-# [1,1,1,1,1,0]
 
 
 
 
 
-#
+
+# 配置地图!!!!!!!!!!!
 
 
 ditu=[
-[0,1,1,1,1,1],
-[1,1,0,0,1,1],
-[1,0,1,1,1,1],
-[1,1,1,1,0,1],
-[1,0,1,1,1,1],
-[1,1,1,1,1,0],
+[1,1,0,1,1,1,1,1,1],
+[1,1,1,1,0,1,1,1,1],
+[1,1,1,1,1,1,0,1,1],
+[1,1,1,0,1,1,1,1,1],
+[1,0,1,1,1,1,1,0,1],
+[1,1,1,1,1,0,1,0,1],
+[0,1,1,0,1,1,1,1,1],
+[1,1,1,1,1,1,1,1,0],
+
+
+
+
 ]
 
 
@@ -51,58 +54,143 @@ print(1)
 
 #=============
 # 其实我们只需要确定起点就够了. 然后算他的最长路径即可.
-#每一个路径我们都要保存, 所以用多叉树结构来存所有路径
-# class node:
-#    def __init__(self,val):
-#       self.val=val  #自己的值
-#       self.children=[] # childre是node组成的数组.
-
-# for i in all_point:
-#    start=i
-#    t=node(start) # 起始点创建的节点就记作根节点.
-
-#    print(1)
+# 每一个路径我们都要保存, 所以用多叉树结构来存所有路径
+class node:
+   def __init__(self,val):
+      self.val=val  #自己的值=值是一个point
+      self.children=[] # childre是node组成的数组.
+      self.par=None #指向父节点, 用于删除时候用.
+      self.visited=0
 
 
-#=========还是直接保存路径
-start_luxian=all_point.copy()  #所有第一步能走到的点.
-#========把点个点变成路径
-for i in range(len(start_luxian)):
-   start_luxian[i]=[start_luxian[i]]
-#==========生成走2步的所有路径
 
 dx=[-1,1,0,0]
 dy=[0,0,-1,1] #只能上下左右走.
 
-#==========输入第n步的全部路线, 输出第n+1步的全部路线.
-def one_step(start_luxian):
-  next_luxian=[]
-  for i in start_luxian:
-        tmp_luxina=i
-        tmp_luxian_zuihouyigedian=i[-1]
+# #==========输入第n步的全部路线, 输出第n+1步的全部路线.
+# def one_step(start_luxian):#========把树高提高一层.
+#   next_luxian=[]
+#   tmplujing=[] #用来保存一条完整路径.
+#   #进行dfs返回一条完整路径.# 因为之前的bfs, 内存不够导致算不出来.
+#   def dfs1(aaa,history_lujing): #传入要遍历的节点aaa,和这个节点父节点经过的路径
+#      if aaa.children==[]:
+#         #如果aaa是一个叶子.那么就尝试添加叶子.
+#         pass
+     
 
-        #===最后一个点开始尝试找到下一个点
-        candidate=[]
-        for j in range(len(dx)):
-          nx=[tmp_luxian_zuihouyigedian[0]+dx[j],tmp_luxian_zuihouyigedian[1]+dy[j]]
-          if 0<=nx[0]<len(ditu) and  0<=nx[1]<len(ditu[0]) and nx not in tmp_luxina and ditu[nx[0]][nx[1]]==1 :
 
-            candidate.append([nx])
-            # print(1)
-        #========路线合并
-        for j in candidate:
-          next_luxian.append(tmp_luxina+j) #======这个地方的二维数组确实很饶腾, 以后可以nmpy重写.
-        # print(1)
-  return next_luxian
 
-for i in range(len(all_point)):#一共可以走这么多步:
-  next_luxian=one_step(start_luxian)
-  if next_luxian==[]:
-    print('找到最长的路线了',start_luxian[0],'长度',len(start_luxian[0]),'走法一共有',len(start_luxian))
-    break
-  start_luxian=next_luxian
+
+#   for i in start_luxian: #=========进行dfs遍历.
+#         tmp_luxina=i
+#         tmp_luxian_zuihouyigedian=i[-1]
+
+#         #===最后一个点开始尝试找到下一个点
+#         candidate=[]
+#         for j in range(len(dx)):
+#           nx=[tmp_luxian_zuihouyigedian[0]+dx[j],tmp_luxian_zuihouyigedian[1]+dy[j]]
+#           if 0<=nx[0]<len(ditu) and  0<=nx[1]<len(ditu[0]) and nx not in tmp_luxina and ditu[nx[0]][nx[1]]==1 :
+
+#         #     candidate.append([tuple(nx)])
+#         #     # print(1)
+#         # #========路线合并
+#         # for j in candidate:
+#            next_luxian.append(tmp_luxina+[tuple(nx)]) #======这个地方的二维数组确实很饶腾, 以后可以nmpy重写.
+#         # print(1)
+
+
+
+
+
+
+
+
+#   return next_luxian
+
+
+#==========根据我们地图我们知道,度为1的点一定是起点!!!!!
+#============我们的起点是一个根.
+root=node((7,0))
+#=====为了测试我们加一层.
+# root.children=[node((7,1)),node((6,0))]
+
+
+start_luxian=root #使用tuple可以进行哈希.
+
+
+# start_luxian=all_point  #如果我们没有度为1的点, 那么我们就只能设置为所有点都可能是起点了.
+
+maxlen=0
+early_quit=0
+save_history=[]
+#========2024-04-14,8点12 改成直接用dfs建立树
+def dfs(aaa,history):
+    global maxlen
+    global early_quit
+    global save_history
+    if early_quit:
+       return 
+    if aaa.children==[]:#如果是叶子,那么就尝试添加叶子.
+          tmp_luxian_zuihouyigedian=aaa.val
+
+
+          #=========无效的减掉.
+          hasnewchild=0
+          for j in range(len(dx)):
+
+            nx=[tmp_luxian_zuihouyigedian[0]+dx[j],tmp_luxian_zuihouyigedian[1]+dy[j]]
+            if 0<=nx[0]<len(ditu) and  0<=nx[1]<len(ditu[0]) and nx not in history and ditu[nx[0]][nx[1]]==1 :
+              #添加叶子
+              ffff=node(nx)
+              aaa.children.append(ffff)
+              #'跟踪最长路径'
+              if len(history)+1>maxlen:
+                 maxlen=len(history)+1
+                 print('当前最长路径长度',len(history)+1)
+                 #=====提前终止:
+                 if maxlen==len(all_point):
+                    early_quit=1#==让其他的dfs函数提前quit
+                    save_history=history+[ffff.val]
+                    return history
+                    break
+              dfs(ffff,history+[ffff.val])
+              hasnewchild=1
+          if not hasnewchild:
+             pass #是否不用管呢?
+    else:
+      #=====遍历叶子.
+      for i in aaa.children:
+         dfs(i,history+[aaa.val])
+         
+
+
+
+
+a=dfs(root,[root.val])
 
 print(1)
+
+
+
+
+
+
+
+
+
+
+
+
+# for i in range(len(all_point)):#一共可以走这么多步:
+#   print('当前推理:',i,'步',)
+  
+#   next_luxian=one_step(start_luxian)
+#   if next_luxian==[]:
+#     print('找到最长的路线了',start_luxian[0],'长度',len(start_luxian[0]),'走法一共有',len(start_luxian))
+#     break
+#   start_luxian=next_luxian
+
+# print(1)
 
 
 #===========gui画图
@@ -128,7 +216,7 @@ for i in range(len(ditu)):
 
 #========画上解的路线即可.
 
-jie=start_luxian[0]
+jie=save_history
 x=1
 y=1
 font={'family':'serif',
@@ -149,7 +237,7 @@ for i in range(len(jie)-1):
    dy=bbbb[0]-aaaa[0]
    dy=-dy
    plt.arrow((aaaa[1]+0.5)*kuan,(len(ditu[0])-aaaa[0]-0.5)*kuan,kuan*dx,kuan*dy,color='red',head_width=0.007,length_includes_head=True)
-plt.savefig('11.png')
+plt.savefig('yibihua答案.png')
 
 
 
